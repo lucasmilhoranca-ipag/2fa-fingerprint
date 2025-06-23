@@ -4,33 +4,43 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login + Fingerprint</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   </head>
-  <body>
-    <div id="app">
-      <h1>Login</h1>
-      <form id="login-form">
-        <label>
-          Usuário:
-          <input type="text" name="username" required />
-        </label><br />
-        <label>
-          Senha:
-          <input type="password" name="password" required />
-        </label><br />
-        <label>
-          OTP:
-          <input type="text" name="otp" />
-        </label><br />
-        <label>
-          <input type="checkbox" name="trust_device" />
-          Confiar por 7 dias
-        </label><br />
-        <button type="submit">Entrar</button>
+  <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div id="app" class="bg-white shadow-md rounded-lg p-8 w-full max-w-2xl space-y-4">
+      <h1 class="text-2xl font-bold text-center text-gray-800">Login</h1>
+      <form id="login-form" class="space-y-4">
+        <label class="block">
+          <span class="text-gray-700">Usuário:</span>
+          <input type="text" name="username" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300" />
+        </label>
+
+        <label class="block">
+          <span class="text-gray-700">Senha:</span>
+          <input type="password" name="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300" />
+        </label>
+
+        <label class="block">
+          <span class="text-gray-700">OTP:</span>
+          <input type="text" name="otp" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300" />
+        </label>
+
+        <label class="inline-flex items-center space-x-2">
+          <input type="checkbox" name="trust_device" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+          <span class="text-gray-700">Confiar por 7 dias</span>
+        </label>
+
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
+          Entrar
+        </button>
       </form>
 
-      <h2>Resposta:</h2>
-      <pre id="output">Aguardando envio...</pre>
+      <div>
+        <h2 class="text-lg font-semibold text-gray-800">Resposta:</h2>
+        <pre id="output" class="bg-gray-100 border border-gray-300 rounded p-4 text-sm overflow-x-auto">Aguardando envio...</pre>
+      </div>
     </div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

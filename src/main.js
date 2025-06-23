@@ -69,6 +69,8 @@ function stableStringify(obj) {
 document.getElementById("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const output = document.getElementById("output");
+
+  output.className = "bg-yellow-100 text-yellow-800 border border-yellow-300 p-4 rounded text-sm whitespace-pre-wrap overflow-x-auto";
   output.textContent = "Enviando login...";
 
   const form = e.target;
@@ -100,9 +102,13 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
     });
 
     const data = await res.json();
+
+    output.className = "bg-green-100 text-green-800 border border-green-300 p-4 rounded text-sm whitespace-pre-wrap overflow-x-auto";
     output.textContent = JSON.stringify(data, null, 2);
   } catch (err) {
     console.error(err);
+
+    output.className = "bg-red-100 text-red-800 border border-red-300 p-4 rounded text-sm whitespace-pre-wrap overflow-x-auto";
     output.textContent = "Erro ao realizar login.";
   }
 });
