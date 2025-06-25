@@ -4,27 +4,49 @@ const identityUrl = `${import.meta.env.VITE_API_URL}/api`;
 
 const client_id = import.meta.env.VITE_IDENTITY_CLIENT_ID;
 
-async function getGeolocation() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      return reject(new Error("Geolocalização não suportada"));
-    }
+async function getGeolocation(timeoutMs = 20000) {
+  if (!navigator.geolocation) return null;
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          latitude: position.coords.latitude.toFixed(2),
-          longitude: position.coords.longitude.toFixed(2),
-        });
-      },
-      (error) => reject(error),
-      {
-        enableHighAccuracy: false,
-        timeout: 5000,
-        maximumAge: 60000,
-      }
-    );
-  });
+  const getCurrentPosition = () => {
+    return new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          if (
+            typeof position?.coords?.latitude === "number" &&
+            typeof position?.coords?.longitude === "number"
+          ) {
+            return resolve({
+              latitude: position.coords.latitude.toFixed(2),
+              longitude: position.coords.longitude.toFixed(2),
+            });
+          } else {
+            return resolve(null);
+          }
+        },
+        () => {
+          return resolve(null);
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: timeoutMs,
+          maximumAge: 60000,
+        }
+      );
+    });
+  };
+
+  try {
+    return await Promise.race([
+      getCurrentPosition(),
+      new Promise((resolve) => {
+        return setTimeout(() => {
+          return resolve(null);
+        }, timeoutMs);
+      }),
+    ]);
+  } catch {
+    return null;
+  }
 }
 
 async function getDeviceFingerprint() {
@@ -70,7 +92,8 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const output = document.getElementById("output");
 
-  output.className = "bg-yellow-100 text-yellow-800 border border-yellow-300 p-4 rounded text-sm whitespace-pre-wrap overflow-x-auto";
+  output.className =
+    "bg-yellow-100 text-yellow-800 border border-yellow-300 p-4 rounded text-sm whitespace-pre-wrap overflow-x-auto";
   output.textContent = "Enviando login...";
 
   const form = e.target;
@@ -103,12 +126,14 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 
     const data = await res.json();
 
-    output.className = "bg-green-100 text-green-800 border border-green-300 p-4 rounded text-sm whitespace-pre-wrap overflow-x-auto";
+    output.className =
+      "bg-green-100 text-green-800 border border-green-300 p-4 rounded text-sm whitespace-pre-wrap overflow-x-auto";
     output.textContent = JSON.stringify(data, null, 2);
   } catch (err) {
     console.error(err);
 
-    output.className = "bg-red-100 text-red-800 border border-red-300 p-4 rounded text-sm whitespace-pre-wrap overflow-x-auto";
+    output.className =
+      "bg-red-100 text-red-800 border border-red-300 p-4 rounded text-sm whitespace-pre-wrap overflow-x-auto";
     output.textContent = "Erro ao realizar login.";
   }
 });
