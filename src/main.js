@@ -17,7 +17,7 @@ async function getGeolocation(timeoutMs = 20000) {
           ) {
             return resolve({
               latitude: position.coords.latitude.toFixed(2),
-              longitude: position.coords.longitude.toFixed(2),
+              longitude: position.coords.longitude.toFixed(2),  
             });
           } else {
             return resolve(null);
@@ -65,27 +65,34 @@ async function getDeviceFingerprint() {
     local_storage: typeof window.localStorage !== "undefined",
     screen_orientation: (screen.orientation || {}).type || "unknown",
     languages: navigator.languages || [navigator.language],
+    geolocation: await getGeolocation(),
   };
-
-  try {
-    const location = await getGeolocation();
-    deviceInfo.geolocation = location;
-  } catch {
-    deviceInfo.geolocation = null;
-  }
+ 
+  const stringify = JSON.stringify(deviceInfo);
 
   return {
     device: deviceInfo,
-    base64: btoa(stableStringify(deviceInfo)),
+    base64: btoa(stringify),
+    stringify, 
   };
 }
 
-function sortObjectKeys(obj) {
-  return Object.keys(obj).sort();
-}
-
 function stableStringify(obj) {
-  return JSON.stringify(obj, sortObjectKeys(obj));
+  const ordered = (input) => {
+    if (Array.isArray(input)) {
+      return input.map(ordered);
+    } else if (input && typeof input === "object" && input.constructor === Object) {
+      return Object.keys(input)
+        .sort()
+        .reduce((acc, key) => {
+          acc[key] = ordered(input[key]);
+          return acc;
+        }, {});
+    }
+    return input;
+  };
+
+  return JSON.stringify(ordered(obj));
 }
 
 document.getElementById("login-form").addEventListener("submit", async (e) => {
@@ -103,10 +110,11 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
   const trust_device = form.trust_device.checked;
 
   try {
-    const { device, base64 } = await getDeviceFingerprint();
+    const { device, base64, stringify } = await getDeviceFingerprint();
 
     console.log(device);
     console.log(base64);
+    console.log(stringify);
 
     const res = await fetch(`${identityUrl}/login`, {
       method: "POST",
